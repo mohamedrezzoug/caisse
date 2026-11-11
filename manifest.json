@@ -1,0 +1,17 @@
+{
+  "name": "الكايس – Caisse",
+  "short_name": "الكايس",
+  "description": "نقطة بيع للمقاهي والمطاعم – Caisse pour cafés et restaurants",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "dir": "rtl",
+  "lang": "ar",
+  "theme_color": "#1f2937",
+  "background_color": "#1f2937",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
