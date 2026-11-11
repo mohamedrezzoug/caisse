@@ -9,9 +9,9 @@
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{height:100%;margin:0}
-body{font-family:Cairo,Tajawal,"Segoe UI",Tahoma,system-ui,sans-serif;background:#e5e7eb;color:#111827;user-select:none}
+body{overscroll-behavior:none;-webkit-touch-callout:none;font-family:Cairo,Tajawal,"Segoe UI",Tahoma,system-ui,sans-serif;background:#e5e7eb;color:#111827;user-select:none}
 button,input,select{font:inherit}
 button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:#fff;color:#111;box-shadow:0 1px 2px #0003}
 button:active{transform:scale(.97)}
@@ -65,7 +65,9 @@ main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:10px;padd
 dialog{border:0;border-radius:16px;padding:0;width:min(720px,94vw);max-height:92vh;box-shadow:0 10px 40px #0006;user-select:text}
 dialog::backdrop{background:#0008}
 .dh{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1f2937;color:#fff;position:sticky;top:0;z-index:1}
-.dh h3{margin:0;font-size:17px}
+.dh h3{margin:0;font-size:17px;flex:1}
+.saved{opacity:0;transition:opacity .25s;background:#16a34a;color:#fff;border-radius:8px;padding:3px 12px;font-size:13px;font-weight:700;margin-inline-end:10px}
+.saved.on{opacity:1}
 .dh button{background:#374151;color:#fff;box-shadow:none}
 .db{padding:14px 16px;overflow:auto;max-height:78vh}
 .row{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
@@ -187,12 +189,12 @@ table.rep th,table.rep td{padding:6px;border-bottom:1px solid #e5e7eb;text-align
 
 <!-- تعديل منتج -->
 <dialog id="dEdit">
-  <div class="dh"><h3 data-i="editProd"></h3><button data-close>✕</button></div>
+  <div class="dh"><h3 data-i="editProd"></h3><span class="saved" data-i="saved"></span><button data-close>✕</button></div>
   <div class="db" id="editBody"></div>
 </dialog>
 
 <dialog id="dSet">
-  <div class="dh"><h3 data-i="settings"></h3><button data-close>✕</button></div>
+  <div class="dh"><h3 data-i="settings"></h3><span class="saved" data-i="saved"></span><button data-close>✕</button></div>
   <div class="db">
     <div class="sub" data-i="presets"></div>
     <div class="presets">
@@ -247,7 +249,7 @@ const I18N = {
     presets:'قوائم جاهزة', pCafe:'☕ قائمة مقهى', pResto:'🍽️ قائمة مطعم', pBoth:'☕🍽️ مقهى + مطعم',
     confirmPreset:'غادي تتعوض الأصناف والمنتجات الحالية. واش تكمل؟', editProd:'تعديل المنتج', icon:'الأيقونة',
     variants:'الأنواع / الأحجام (ثمن كل نوع)', extras:'الإضافات (ثمن زيادة)', addVariant:'+ نوع', addExtra:'+ إضافة',
-    basePrice:'الثمن (إلا ما كانتش أنواع)', optionsHint:'خيارات', addTable:'زيد طاولة', delTable:'حيد آخر طاولة', tableBusy:'هاد الطاولة فيها طلب مفتوح'
+    basePrice:'الثمن (إلا ما كانتش أنواع)', optionsHint:'خيارات', saved:'✓ تم الحفظ', addTable:'زيد طاولة', delTable:'حيد آخر طاولة', tableBusy:'هاد الطاولة فيها طلب مفتوح'
   },
   fr: {
     title:'Caisse', takeaway:'À emporter', table:'Table', total:'Total', pay:'Encaisser', print:'Imprimer', clear:'Vider',
@@ -265,7 +267,7 @@ const I18N = {
     presets:'Menus prêts', pCafe:'☕ Menu café', pResto:'🍽️ Menu restaurant', pBoth:'☕🍽️ Café + restaurant',
     confirmPreset:'Les catégories et produits actuels seront remplacés. Continuer ?', editProd:'Modifier le produit', icon:'Icône',
     variants:'Types / Tailles (prix de chacun)', extras:'Suppléments (prix en plus)', addVariant:'+ Type', addExtra:'+ Supplément',
-    basePrice:'Prix (s\'il n\'y a pas de types)', optionsHint:'options', addTable:'Ajouter une table', delTable:'Supprimer la dernière table', tableBusy:'Cette table a une commande ouverte'
+    basePrice:'Prix (s\'il n\'y a pas de types)', optionsHint:'options', saved:'✓ Enregistré', addTable:'Ajouter une table', delTable:'Supprimer la dernière table', tableBusy:'Cette table a une commande ouverte'
   }
 };
 
@@ -370,7 +372,14 @@ function load() {
   return DEFAULTS();
 }
 let S = load();
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+let savedTimer = null;
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  const els = document.querySelectorAll('dialog[open] .saved');
+  els.forEach(el => el.classList.add('on'));
+  clearTimeout(savedTimer);
+  savedTimer = setTimeout(() => document.querySelectorAll('.saved').forEach(el => el.classList.remove('on')), 1400);
+}
 
 let cur = 'T0', catSel = 'all', payMethod = 'cash';
 const t = k => (I18N[S.settings.lang] || I18N.ar)[k] || k;
