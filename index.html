@@ -220,7 +220,7 @@ table.rep th,table.rep td{padding:6px;border-bottom:1px solid #e5e7eb;text-align
       <button id="resetSales" data-i="resetSales" style="background:#fee2e2;color:#b91c1c"></button>
     </div>
     <input type="file" id="bkFile" accept=".json,application/json" hidden>
-    <div style="text-align:center;color:#9ca3af;font-size:12px;margin-top:16px">Caisse · v3</div>
+    <div style="text-align:center;color:#9ca3af;font-size:12px;margin-top:16px">Caisse · v4</div>
   </div>
 </dialog>
 
@@ -250,7 +250,7 @@ const I18N = {
     presets:'قوائم جاهزة', pCafe:'☕ قائمة مقهى', pResto:'🍽️ قائمة مطعم', pBoth:'☕🍽️ مقهى + مطعم',
     confirmPreset:'غادي تتعوض الأصناف والمنتجات الحالية. واش تكمل؟', editProd:'تعديل المنتج', icon:'الأيقونة',
     variants:'الأنواع / الأحجام (ثمن كل نوع)', extras:'الإضافات (ثمن زيادة)', addVariant:'+ نوع', addExtra:'+ إضافة',
-    basePrice:'الثمن (إلا ما كانتش أنواع)', optionsHint:'خيارات', saved:'✓ تم الحفظ', addTable:'زيد طاولة', delTable:'حيد آخر طاولة', tableBusy:'هاد الطاولة فيها طلب مفتوح'
+    basePrice:'الثمن (إلا ما كانتش أنواع)', optionsHint:'خيارات', editVarPrice:'هاد المنتج عندو أنواع: بدل الثمن من هنا', saved:'✓ تم الحفظ', addTable:'زيد طاولة', delTable:'حيد آخر طاولة', tableBusy:'هاد الطاولة فيها طلب مفتوح'
   },
   fr: {
     title:'Caisse', takeaway:'À emporter', table:'Table', total:'Total', pay:'Encaisser', print:'Imprimer', clear:'Vider',
@@ -268,7 +268,7 @@ const I18N = {
     presets:'Menus prêts', pCafe:'☕ Menu café', pResto:'🍽️ Menu restaurant', pBoth:'☕🍽️ Café + restaurant',
     confirmPreset:'Les catégories et produits actuels seront remplacés. Continuer ?', editProd:'Modifier le produit', icon:'Icône',
     variants:'Types / Tailles (prix de chacun)', extras:'Suppléments (prix en plus)', addVariant:'+ Type', addExtra:'+ Supplément',
-    basePrice:'Prix (s\'il n\'y a pas de types)', optionsHint:'options', saved:'✓ Enregistré', addTable:'Ajouter une table', delTable:'Supprimer la dernière table', tableBusy:'Cette table a une commande ouverte'
+    basePrice:'Prix (s\'il n\'y a pas de types)', optionsHint:'options', editVarPrice:'Ce produit a des types : modifiez les prix ici', saved:'✓ Enregistré', addTable:'Ajouter une table', delTable:'Supprimer la dernière table', tableBusy:'Cette table a une commande ouverte'
   }
 };
 
@@ -747,7 +747,10 @@ function renderSetProds() {
     const r = document.createElement('div'); r.className = 'row'; r.dataset.id = p.id;
     const opts = S.cats.map(c => '<option value="' + esc(c.id) + '"' + (c.id === p.cat ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('');
     const n = p.variants.length + p.extras.length;
-    r.innerHTML = '<button data-edit title="' + esc(t('editProd')) + '">' + esc(iconOf(p)) + ' ⚙' + (n ? ' <small>' + n + '</small>' : '') + '</button><input type="text" data-f="name" value="' + esc(p.name) + '"><input type="number" data-f="price" step="any" min="0" value="' + p.price + '"><select data-f="cat">' + opts + '</select><button data-del>✕</button>';
+    const priceCell = p.variants.length
+      ? '<button data-edit title="' + esc(t('editVarPrice')) + '" style="min-width:90px;background:#eef2ff">' + esc(t('from') + ' ' + fmt(minPrice(p))) + ' ✎</button>'
+      : '<input type="number" data-f="price" step="any" min="0" value="' + p.price + '">';
+    r.innerHTML = '<button data-edit title="' + esc(t('editProd')) + '">' + esc(iconOf(p)) + ' ⚙' + (n ? ' <small>' + n + '</small>' : '') + '</button><input type="text" data-f="name" value="' + esc(p.name) + '">' + priceCell + '<select data-f="cat">' + opts + '</select><button data-del>✕</button>';
     pb.appendChild(r);
   });
 }
